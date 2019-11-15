@@ -1,5 +1,5 @@
 # slicer rc 
-# cobbled together from initial work of austin kao
+# cobbled together from initial work of austin kao by james cook for austin's further devlopment
 # adapted to be marginally cross platform
 
 import os
@@ -14,6 +14,7 @@ execfile(fb_viewr_dir+'TwoStrainView.py')
 execfile(fb_viewr_dir+'ThreeStrainView.py')
 execfile(fb_viewr_dir+'FourStrainView.py')
 execfile(fb_viewr_dir+'FiveStrainView.py')
+execfile(fb_viewr_dir+'StrainDataLoad.py')
 execfile(fb_viewr_dir+'FiberBundle_Setup.py')
 execfile(fb_viewr_dir+'findNode.py')
 
