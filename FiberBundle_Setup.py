@@ -1,7 +1,7 @@
 #Code for setting up the Fiber Bundles in Two Strain View layout
 #Strain a will be seen on the left side and strain b will be seen on the right side
 #Author: Austin Kao
-def SetUpFiberBundle(intList,trkFilter):
+def SetUpFiberBundle(intList,trkFilter=None):
 	if(not(type(intList) is list)):
 		print(type(intList))
 		print("Please use a list as an input")
