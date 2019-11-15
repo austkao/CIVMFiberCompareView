@@ -19,7 +19,8 @@ execfile(fb_viewr_dir+'FiberBundle_Setup.py')
 execfile(fb_viewr_dir+'findNode.py')
 
 
-slicer.util.loadScene(fb_viewr_dir+"/TemplateScene.mrml")
+# both of these are somewhat dirty behavior
+# slicer.util.loadScene(fb_viewr_dir+"/TemplateScene.mrml")
 # This is per study really... Gotta do better than this in the future.
-slicer.util.loadTransform(fb_viewr_dir+"trk_to_vol_space.h5")
+# slicer.util.loadTransform(fb_viewr_dir+"trk_to_vol_space.h5")
 

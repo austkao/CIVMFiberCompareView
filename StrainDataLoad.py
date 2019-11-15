@@ -1,4 +1,7 @@
 # Script to load data in orderded fashino for SetUpFiberBundle
+# Not the best name when I think about it,
+# Maybe it should be LoadCIVMPackedTrackData ? 
+# ... or maybe not.
 # james cook
 def StrainDataLoad(packDir,strList,imPat,trkPat):
   # packDir should be full of independent collections of data (RUNNO's at civm)
@@ -28,19 +31,13 @@ def StrainDataLoad(packDir,strList,imPat,trkPat):
   # Input Checking
   if not os.path.isdir(packDir):
     return
-  # in case of madness cleanup packDir
-  # .replace() all backslashes with forwardslashes
-  #packDir=packDir.replace("\\\\","\\")
-  #packDir=packDir.replace("\\","/")
-  # This windowify your path when on widnows, which you might think is good, however, varios py code fails with win style paths... Seriously.
-  # packDir=os.path.normpath(packDir)
   
   sutil = slicer.util
   import re
   
   for packName in strList:
     # if we've got dir info coded into strList we gotta clean that out.
-    dataPak=os.path.join(packDir, packName)#.replace("\\","/")
+    dataPak=os.path.join(packDir, packName)
     if not os.path.isdir(dataPak):
       print("Bad pak specified"+dataPak)
       return
@@ -48,13 +45,13 @@ def StrainDataLoad(packDir,strList,imPat,trkPat):
     packName=os.path.basename(dataPak)
     
     # get any track dirs
-    trkD=os.path.join(dataPak,"trk")#.replace("\\","/")
+    trkD=os.path.join(dataPak,"trk")
     packTrks= os.listdir(trkD)
     if len(packTrks)==0:
       print("No trk files in "+trkD+" cannot continue!")
       return
     packTrk=packTrks[0]
-    print("trk sel:"+packTrk)
+    # print("trk sel:"+packTrk)
     packTrk=os.path.join(trkD,packTrk)
     if len(packTrks)>1:
       print("Mutliple trk dirs found! Just using first, We need to do better!")
@@ -75,6 +72,7 @@ def StrainDataLoad(packDir,strList,imPat,trkPat):
       print("Multi-choice track transforms, We're gonna abort")
       return
     
+    # Should check if data are loaded here and skip if they are
     sutil.loadVolume(os.path.join(dataPak,imgs[0]))
     sutil.loadFiberBundle(os.path.join(packTrk,trks[0]))
     if len(trk_t)==1:
