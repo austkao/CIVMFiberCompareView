@@ -94,7 +94,7 @@ customLayout = ("<layout type=\"horizontal\">"
   "</layout>")
 
 customLayoutId=589
-
+FiveStrainView=customLayoutId;
 layoutManager = slicer.app.layoutManager()
 layoutManager.layoutLogic().GetLayoutNode().AddLayoutDescription(customLayoutId, customLayout)                                         
-layoutManager.setLayout(customLayoutId)
+#layoutManager.setLayout(customLayoutId)

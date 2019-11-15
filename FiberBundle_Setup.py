@@ -1,7 +1,7 @@
 #Code for setting up the Fiber Bundles in Two Strain View layout
 #Strain a will be seen on the left side and strain b will be seen on the right side
 #Author: Austin Kao
-def SetUpFiberBundle(intList):
+def SetUpFiberBundle(intList,trkFilter):
 	if(not(type(intList) is list)):
 		print(type(intList))
 		print("Please use a list as an input")
@@ -19,12 +19,16 @@ def SetUpFiberBundle(intList):
 		if(viewNum==1):
 			sliceString = "vtkMRMLSliceNodeRed"
 		elif(viewNum==2):
+			layoutManager.setLayout(TwoStrainView)
 			sliceString = "vtkMRMLSliceNodeYellow"
 		elif(viewNum==3):
+			layoutManager.setLayout(ThreeStrainView)
 			sliceString = "vtkMRMLSliceNodeGreen"
 		elif(viewNum==4):
+			layoutManager.setLayout(FourStrainView)
 			sliceString = "vtkMRMLSliceNodeRed+"
 		elif(viewNum==5):
+			layoutManager.setLayout(FiveStrainView)
 			sliceString = "vtkMRMLSliceNodeYellow+"
 		line1 = scene.GetNodeByID(lineString)
 		line1.SetDisplayableOnlyInView(viewString)

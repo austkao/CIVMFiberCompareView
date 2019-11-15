@@ -39,7 +39,7 @@ customLayout = ("<layout type=\"horizontal\">"
   "</layout>")
 
 customLayoutId=586
-
+TwoStrainView=customLayoutId;
 layoutManager = slicer.app.layoutManager()
 layoutManager.layoutLogic().GetLayoutNode().AddLayoutDescription(customLayoutId, customLayout)                                         
-layoutManager.setLayout(customLayoutId)
+#layoutManager.setLayout(customLayoutId)
