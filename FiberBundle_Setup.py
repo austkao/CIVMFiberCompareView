@@ -17,19 +17,19 @@ def SetUpFiberBundle(intList,trkFilter):
 		tubeString = "vtkMRMLFiberBundleTubeDisplayNode"+str(intList[i])
 		viewString = "vtkMRMLViewNode"+str(viewNum)
 		if(viewNum==1):
-			sliceString = "vtkMRMLSliceNodeRed"
+			sliceString = "vtkMRMLSliceNodeOne"
 		elif(viewNum==2):
 			layoutManager.setLayout(TwoStrainView)
-			sliceString = "vtkMRMLSliceNodeYellow"
+			sliceString = "vtkMRMLSliceNodeTwo"
 		elif(viewNum==3):
 			layoutManager.setLayout(ThreeStrainView)
-			sliceString = "vtkMRMLSliceNodeGreen"
+			sliceString = "vtkMRMLSliceNodeThree"
 		elif(viewNum==4):
 			layoutManager.setLayout(FourStrainView)
-			sliceString = "vtkMRMLSliceNodeRed+"
+			sliceString = "vtkMRMLSliceNodeFour"
 		elif(viewNum==5):
 			layoutManager.setLayout(FiveStrainView)
-			sliceString = "vtkMRMLSliceNodeYellow+"
+			sliceString = "vtkMRMLSliceNodeFive" 
 		line1 = scene.GetNodeByID(lineString)
 		line1.SetDisplayableOnlyInView(viewString)
 		tube1 = scene.GetNodeByID(tubeString)
