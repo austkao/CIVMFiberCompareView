@@ -73,10 +73,12 @@ def StrainDataLoad(packDir,strList,imPat,trkPat):
       return
     
     # Should check if data are loaded here and skip if they are
+    #[loadSuccess, volumeNode]=sutil.loadVolume(os.path.join(dataPak,imgs[0]),True)
     sutil.loadVolume(os.path.join(dataPak,imgs[0]))
-    sutil.loadFiberBundle(os.path.join(packTrk,trks[0]))
+    [loadSuccess, fiberNode]=sutil.loadFiberBundle(os.path.join(packTrk,trks[0]),True)
     if len(trk_t)==1:
-      sutil.loadTransform(os.path.join(packTrk,trk_t[0]))
+      [loadSuccess, transformNode]=sutil.loadTransform(os.path.join(packTrk,trk_t[0]), True)
+      fiberNode.ApplyTransformMatrix(transformNode.GetMatrixTransformToParent())
   
   return
   #sutil.loadVolume("/Users/ak457/DiffusionDisplayTestData/BTBR_N54811/N54811_fa_RAS.nii.gz")
