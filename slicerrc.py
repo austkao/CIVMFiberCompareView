@@ -8,7 +8,7 @@ import os
 if os.name=='nt':
   fb_viewr_dir='K:/ProjectSpace/FiberCompareView/'
 else:
-  fb_viewr_dir='/Users/ak457/Documents/FiberCompareView'
+  fb_viewr_dir='/Users/ak457/Documents/FiberCompareView/'
   
 execfile(fb_viewr_dir+'TwoStrainView.py')
 execfile(fb_viewr_dir+'ThreeStrainView.py')
