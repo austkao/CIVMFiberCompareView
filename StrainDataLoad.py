@@ -3,7 +3,7 @@
 # Maybe it should be LoadCIVMPackedTrackData ? 
 # ... or maybe not.
 # james cook
-def StrainDataLoad(packDir,strList,imPat,trkPat):
+def StrainDataLoad(packDir,strList,imPat,trkPat,atlasTransform=None):
   # packDir should be full of independent collections of data (RUNNO's at civm)
   # strList is a listing of things in packDir
   #
@@ -34,7 +34,9 @@ def StrainDataLoad(packDir,strList,imPat,trkPat):
   
   sutil = slicer.util
   import re
-  
+  # Should return ... things? maybe list of volumeNodes?
+  volumeNodes=[0 for packName in strList]
+  im=0;
   for packName in strList:
     # if we've got dir info coded into strList we gotta clean that out.
     dataPak=os.path.join(packDir, packName)
@@ -43,6 +45,11 @@ def StrainDataLoad(packDir,strList,imPat,trkPat):
       return
     # in many cases this will just be re-assigning the same thing back to the var
     packName=os.path.basename(dataPak)
+    
+    # check if we have a transform dir and bail if we asked for one but didnt find
+    trLinkD=os.path.join(dataPak,"transforms")
+    if atlasTransform is not None and no os.path.isdir(trLinkD):
+        print("Missing requested transform dir",trLinkD)
     
     # get any track dirs
     trkD=os.path.join(dataPak,"trk")
@@ -65,8 +72,9 @@ def StrainDataLoad(packDir,strList,imPat,trkPat):
     # find transform file in trk folder to put the trks in alignment with the images
     trk_t = [f for f in os.listdir(packTrk) if re.match(r''+packName+'.*([aA]ffine|[rR]igid.*)?[.](h5|mat|txt)', f)]
 
-    if not (len(imgs) == 1) and not (len(trks) == 1):
-      print("Bad data for "+packName+" imgs:"+len(imgs)+" trks:"+len(trks))
+    if not (len(imgs) == 1) or not (len(trks) == 1):
+      print("Bad data for ",packName," imgs:",len(imgs)," trks:",len(trks))
+      return
 
     if len(trk_t)>1:
       print("Multi-choice track transforms, We're gonna abort")
@@ -77,13 +85,18 @@ def StrainDataLoad(packDir,strList,imPat,trkPat):
     
     #Useful methods: slicer.util.GetNode(), slicer.util.setSliceViewerLayers()
     
-    sutil.loadVolume(os.path.join(dataPak,imgs[0]))
+    [s,volumeNodes[im]]=sutil.loadVolume(os.path.join(dataPak,imgs[0]),{"Show":False},True)
+    im+=1
     [loadSuccess, fiberNode]=sutil.loadFiberBundle(os.path.join(packTrk,trks[0]),True)
     if len(trk_t)==1:
       [loadSuccess, transformNode]=sutil.loadTransform(os.path.join(packTrk,trk_t[0]), True)
       fiberNode.ApplyTransformMatrix(transformNode.GetMatrixTransformToParent())
-  
-  return
+    if atlasTransform is not None:
+      print("loading additional transforms to ",atlasTransform);
+      data_t = [f for f in os.listdir(packTrk) if re.match(r''+packName+'.*([aA]ffine|[rR]igid.*)?[.](h5|mat|txt)', f)]
+
+      
+  return volumeNodes
   #sutil.loadVolume("/Users/ak457/DiffusionDisplayTestData/BTBR_N54811/N54811_fa_RAS.nii.gz")
   #sutil.loadVolume("/Users/ak457/DiffusionDisplayTestData/C57_N54790/N54790_fa_RAS.nii.gz")
   #sutil.loadFiberBundle("/Users/ak457/DSI studio testing/DSI studio BAD/N54790_C57/N54790_C57_symmetric_R_labels_RAS_121.vtk")
