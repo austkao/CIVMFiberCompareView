@@ -31,3 +31,5 @@ def runVolumeRender(volumeNode, view3D):
       else:
         volumeRenderingLogic.UpdateDisplayNodeFromVolumeNode(displayNode, volumeNode)
       displayNode.SetVisibility(view3D)
+      viewString = "vtkMRMLViewNode"+str(view3D)
+      displayNode.SetDisplayableOnlyInView(viewString)
