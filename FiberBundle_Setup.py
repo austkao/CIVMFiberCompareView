@@ -6,7 +6,7 @@
 #e.g. exec FiveStrainView.py first before giving input list of length five
 #Note that the code assumes that MRML IDs for the FA and Fiber Bundle Nodes share the same number
 #Author: Austin Kao
-def SetUpFiberBundle(intList,trkFilter=None):
+def SetUpFiberBundle(intList,trkFilter=None,show3D=None):
 	if(not(type(intList) is list)):
 		print(type(intList))
 		print("Please use a list as an input")
@@ -23,13 +23,13 @@ def SetUpFiberBundle(intList,trkFilter=None):
 	for i in range(len(intList)):
 		#fib = scene.GetNodeByID("vtkMRMLFiberBundleNode"+str(intList[i]))
 		#fib.SetColorModeToMeanFiberOrientation()
+		# use trk filter to find only mess with proper track here?
 		lineString = "vtkMRMLFiberBundleLineDisplayNode"+str(intList[i])
 		tubeString = "vtkMRMLFiberBundleTubeDisplayNode"+str(intList[i])
 		viewString = "vtkMRMLViewNode"+str(viewNum)
 		if(viewNum==1):
 			sliceString = "vtkMRMLSliceNodeOne"
 		elif(viewNum==2):
-			
 			sliceString = "vtkMRMLSliceNodeTwo"
 		elif(viewNum==3):
 			layoutManager.setLayout(ThreeStrainView)
@@ -42,6 +42,8 @@ def SetUpFiberBundle(intList,trkFilter=None):
 			sliceString = "vtkMRMLSliceNodeFive" 
 		compString = sliceString.replace("Slice","SliceComposite")
 		print(compString)
+		sliceNode = scene.GetNodeByID(sliceString)
+		sliceNode.SetSliceResolutionMode(0)
 		line1 = scene.GetNodeByID(lineString)
 		line1.SetDisplayableOnlyInView(viewString)
 		tube1 = scene.GetNodeByID(tubeString)
@@ -55,3 +57,10 @@ def SetUpFiberBundle(intList,trkFilter=None):
 		volume = volumes.GetItemAsObject(intList[i]-1)
 		compNode.SetBackgroundVolumeID(volume.GetID())
 		viewNum = viewNum+1
+		#>>> manager.resetThreeDViews()
+		manager = slicer.app.layoutManager()
+		manager.resetSliceViews()
+		if show3D is not None:
+			runVolumeRender(volume,i+1)
+			manager.resetThreeDViews()
+			#reset3DView(i+1)
