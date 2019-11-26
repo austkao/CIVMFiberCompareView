@@ -74,6 +74,9 @@ def StrainDataLoad(packDir,strList,imPat,trkPat):
     
     # Should check if data are loaded here and skip if they are
     #[loadSuccess, volumeNode]=sutil.loadVolume(os.path.join(dataPak,imgs[0]),True)
+    
+    #Useful methods: slicer.util.GetNode(), slicer.util.setSliceViewerLayers()
+    
     sutil.loadVolume(os.path.join(dataPak,imgs[0]))
     [loadSuccess, fiberNode]=sutil.loadFiberBundle(os.path.join(packTrk,trks[0]),True)
     if len(trk_t)==1:
