@@ -14,8 +14,13 @@ execfile(fb_viewr_dir+'TwoStrainView.py')
 execfile(fb_viewr_dir+'ThreeStrainView.py')
 execfile(fb_viewr_dir+'FourStrainView.py')
 execfile(fb_viewr_dir+'FiveStrainView.py')
+
 execfile(fb_viewr_dir+'StrainDataLoad.py')
 execfile(fb_viewr_dir+'FiberBundle_Setup.py')
+execfile(fb_viewr_dir+'runVolumeRender.py')
+#execfile(fb_viewr_dir+'reset3DView.py')
+#execfile(fb_viewr_dir+'reset3DViews.py')
+
 execfile(fb_viewr_dir+'findNode.py')
 
 
