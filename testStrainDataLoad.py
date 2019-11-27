@@ -4,6 +4,7 @@ if os.name=='nt':
   strList=["N57147","N57149"]
   packDir='K:\\ProjectSpace\\FiberCompareView\\TestData'
   strList=["DB2\\N54781","BTBR\\N54817"]
+  strList=["DB2\\N54781","BTBR\\N54817","CAST\\N54847","C57\\N54870"]
 else:
   packDir='/Users/ak457/DiffusionDisplayTestData/'
   strList=["DB2/N54781","BRBR/N54817"]
@@ -16,7 +17,8 @@ trkPat=".*ROI_"+str(N)+"_.*[.]vtk([.]gz)?$"
 volumeNodes=StrainDataLoad(packDir,strList,imPat,trkPat,True)
 volProp=os.path.join(packDir,"FARenderVolumeProperty.vp")
 if volumeNodes is not None:
-  SetUpFiberBundle([1,2],None,volProp)
+  intList=range(1,len(strList)+1)
+  SetUpFiberBundle(intList,None,volProp)
 else:
   print("Trouble loading")
 

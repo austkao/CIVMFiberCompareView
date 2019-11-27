@@ -22,7 +22,7 @@ def SetUpFiberBundle(intList,trkFilter=None,show3D=None):
 	layoutManager.setLayout(TwoStrainView)
 	for i in range(len(intList)):
 		# maybe viewNum should be intList[i] ? 
-		viewNum = i+1
+		viewNum = intList[i]
 		#fib = scene.GetNodeByID("vtkMRMLFiberBundleNode"+str(intList[i]))
 		#fib.SetColorModeToMeanFiberOrientation()
 		# use trk filter to find only mess with proper track here?
@@ -62,6 +62,10 @@ def SetUpFiberBundle(intList,trkFilter=None,show3D=None):
 		tube1.SetColorModeToPointFiberOrientation()
 		tube1.SetSliceIntersectionVisibility(1)
 		compNode = scene.GetNodeByID(compString)
+		
+		# this wierd intlist[i]-1 is to is to goto 0 indexing from 1
+		# take care, even though i is zero indexed, it wouldn't 
+		# necessarily be the right value here.
 		volume = volumes.GetItemAsObject(intList[i]-1)
 		compNode.SetBackgroundVolumeID(volume.GetID())
 		manager = slicer.app.layoutManager()
