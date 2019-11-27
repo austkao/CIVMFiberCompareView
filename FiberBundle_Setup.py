@@ -21,6 +21,8 @@ def SetUpFiberBundle(intList,trkFilter=None,show3D=None):
 	#TODO: Ensure volume count is same as intList length
 	layoutManager.setLayout(TwoStrainView)
 	for i in range(len(intList)):
+		# maybe viewNum should be intList[i] ? 
+		viewNum = i+1
 		#fib = scene.GetNodeByID("vtkMRMLFiberBundleNode"+str(intList[i]))
 		#fib.SetColorModeToMeanFiberOrientation()
 		# use trk filter to find only mess with proper track here?
@@ -28,7 +30,6 @@ def SetUpFiberBundle(intList,trkFilter=None,show3D=None):
 		tubeString = "vtkMRMLFiberBundleTubeDisplayNode"+str(intList[i])
 		viewString = "vtkMRMLViewNode"+str(viewNum)
 		if(viewNum==1):
-			cam1 = slicer.util.getNode("vtkMRMLCameraNode1")
 			sliceString = "vtkMRMLSliceNodeOne"
 		elif(viewNum==2):
 			sliceString = "vtkMRMLSliceNodeTwo"
@@ -41,6 +42,8 @@ def SetUpFiberBundle(intList,trkFilter=None,show3D=None):
 		elif(viewNum==5):
 			layoutManager.setLayout(FiveStrainView)
 			sliceString = "vtkMRMLSliceNodeFive"
+		if(viewNum==1):
+			cam1 = slicer.util.getNode("vtkMRMLCameraNode1")
 		if viewNum>1:
 			cam1.SetActiveTag("vtkMRMLViewNode"+str(viewNum))
 		compString = sliceString.replace("Slice","SliceComposite")
@@ -48,7 +51,6 @@ def SetUpFiberBundle(intList,trkFilter=None,show3D=None):
 		sliceNode = scene.GetNodeByID(sliceString)
 		sliceNode.SetSliceResolutionMode(0)
 		#compNode = scene.GetNthNodeByClass(i, "vtkMRMLSliceCompositeNode")
-		#volume = volumes.GetItemAsObject(intList[i]-1)
 		line1 = scene.GetNodeByID(lineString)
 		line1.SetDisplayableOnlyInView(viewString)
 		tube1 = scene.GetNodeByID(tubeString)
@@ -62,7 +64,6 @@ def SetUpFiberBundle(intList,trkFilter=None,show3D=None):
 		compNode = scene.GetNodeByID(compString)
 		volume = volumes.GetItemAsObject(intList[i]-1)
 		compNode.SetBackgroundVolumeID(volume.GetID())
-		viewNum = viewNum+1
 		manager = slicer.app.layoutManager()
 		manager.resetSliceViews()
 		if show3D is not None:
