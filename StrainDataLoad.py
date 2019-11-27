@@ -4,6 +4,7 @@
 # ... or maybe not.
 # james cook
 def StrainDataLoad(packDir,strList,imPat,trkPat,atlasTransform=None):
+  transformExts='[.](h5|mat|txt)'
   # packDir should be full of independent collections of data (RUNNO's at civm)
   # strList is a listing of things in packDir
   #
@@ -70,7 +71,7 @@ def StrainDataLoad(packDir,strList,imPat,trkPat,atlasTransform=None):
     trks = [f for f in os.listdir(packTrk) if re.match(r''+packName+trkPat+'', f)]
 
     # find transform file in trk folder to put the trks in alignment with the images
-    trk_t = [f for f in os.listdir(packTrk) if re.match(r''+packName+'.*([aA]ffine|[rR]igid.*)?[.](h5|mat|txt)', f)]
+    trk_t = [f for f in os.listdir(packTrk) if re.match(r''+packName+'.*([aA]ffine|[rR]igid.*)?'+transformExts, f)]
 
     if not (len(imgs) == 1) or not (len(trks) == 1):
       print("Bad data for ",packName," imgs:",len(imgs)," trks:",len(trks))
@@ -83,19 +84,51 @@ def StrainDataLoad(packDir,strList,imPat,trkPat,atlasTransform=None):
     # Should check if data are loaded here and skip if they are
     #[loadSuccess, volumeNode]=sutil.loadVolume(os.path.join(dataPak,imgs[0]),True)
     
-    #Useful methods: slicer.util.getNode(), slicer.util.setSliceViewerLayers()
-    
-    [s,volumeNodes[im]]=sutil.loadVolume(os.path.join(dataPak,imgs[0]),{"Show":False},True)
-    im+=1
+    #Useful methods: slicer.util.GetNode(), slicer.util.setSliceViewerLayers()
+    print "LoadVol",os.path.join(dataPak,imgs[0])
+    [loadSuccess,volumeNodes[im]]=sutil.loadVolume(os.path.join(dataPak,imgs[0]),{"Show":False},True)
     [loadSuccess, fiberNode]=sutil.loadFiberBundle(os.path.join(packTrk,trks[0]),True)
     if len(trk_t)==1:
-      [loadSuccess, transformNode]=sutil.loadTransform(os.path.join(packTrk,trk_t[0]), True)
-      fiberNode.ApplyTransformMatrix(transformNode.GetMatrixTransformToParent())
+      [loadSuccess, trkToVolTransform]=sutil.loadTransform(os.path.join(packTrk,trk_t[0]), True)
+      # fiberNode.ApplyTransformMatrix(trkToVolTransform.GetMatrixTransformToParent())
+      fiberNode.SetAndObserveTransformNodeID(trkToVolTransform.GetID())
     if atlasTransform is not None:
-      print("loading additional transforms to ",atlasTransform);
-      data_t = [f for f in os.listdir(packTrk) if re.match(r''+packName+'.*([aA]ffine|[rR]igid.*)?[.](h5|mat|txt)', f)]
-
-      
+      # Simplisitic first version assuming that there is only one transform set FROM our data to someplace else.
+      # In the future we can check if atlasTransform is a string, and if it's specifiying our target.
+      print("loading additional transforms from",trLinkD,"\n\tto:",atlasTransform);
+      chainTransformLinks = [f for f in os.listdir(trLinkD) if re.match(r'^'+packName+'', f)]
+      if len(chainTransformLinks)==0:
+        print("No transforms packs in "+trLinkD+" cannot continue!")
+        return
+      elif len(chainTransformLinks)>1:
+        print("To many transform packs, Not smart enougth to sort it out")
+        return;
+      trLinkD=os.path.join(trLinkD,chainTransformLinks[0])
+      chainTransformLinks = [f for f in os.listdir(trLinkD) if re.match(r'^_.+'+transformExts, f)]
+      chainTransformLinks.sort()
+      transformNodes=[0 for tformName in chainTransformLinks]
+      print "Load additional link transforms:"
+      for tn in range(len(chainTransformLinks)):
+        tformName=chainTransformLinks[tn]
+        print "  "+tformName
+        [loadSuccess, transformNodes[tn]]=sutil.loadTransform(os.path.join(trLinkD,tformName), True)
+        if loadSuccess:
+          if tn > 0:
+            # transformNodes[tn].ApplyTransformMatrix(transformNodes[tn-1].GetMatrixTransformToParent())
+            transformNodes[tn-1].SetAndObserveTransformNodeID(transformNodes[tn].GetID())
+          else:
+            # volumeNodes[im].ApplyTransformMatrix(transformNodes[tn].GetMatrixTransformToParent())
+            volumeNodes[im].SetAndObserveTransformNodeID(transformNodes[tn].GetID())
+            if len(trk_t)==1:
+              # trkToVolTransform.ApplyTransformMatrix(transformNodes[tn].GetMatrixTransformToParent())
+              trkToVolTransform.SetAndObserveTransformNodeID(transformNodes[tn].GetID())
+            else:
+              # fiberNode.ApplyTransformMatrix(transformNodes[tn].GetMatrixTransformToParent())
+              fiberNode.SetAndObserveTransformNodeID(transformNodes[tn].GetID())
+        else:
+          print("error loading ",tformName)
+          return
+    im+=1
   return volumeNodes
   #sutil.loadVolume("/Users/ak457/DiffusionDisplayTestData/BTBR_N54811/N54811_fa_RAS.nii.gz")
   #sutil.loadVolume("/Users/ak457/DiffusionDisplayTestData/C57_N54790/N54790_fa_RAS.nii.gz")
