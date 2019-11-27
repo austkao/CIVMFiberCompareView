@@ -2,6 +2,8 @@
 if os.name=='nt':
   packDir='K:\\ProjectSpace\\FiberCompareView\\ex_testdata'
   strList=["N57147","N57149"]
+  packDir='K:\\ProjectSpace\\FiberCompareView\\TestData'
+  strList=["DB2\\N54781","BTBR\\N54817"]
 else:
   packDir='/Users/ak457/DiffusionDisplayTestData/'
   strList=["N54781","N54817"]
@@ -11,5 +13,9 @@ imPat=".*_fa.*[.]nii([.]gz)?$"
 #N=119
 N=38
 trkPat=".*ROI_"+str(N)+"_.*[.]vtk([.]gz)?$"
-StrainDataLoad(packDir,strList,imPat,trkPat)
-SetUpFiberBundle([1,2])
+volumeNodes=StrainDataLoad(packDir,strList,imPat,trkPat,True)
+if volumeNodes is not None:
+  SetUpFiberBundle([1,2],None,True)
+else:
+  print("Trouble loading")
+
