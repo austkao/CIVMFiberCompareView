@@ -14,8 +14,9 @@ imPat=".*_fa.*[.]nii([.]gz)?$"
 N=38
 trkPat=".*ROI_"+str(N)+"_.*[.]vtk([.]gz)?$"
 volumeNodes=StrainDataLoad(packDir,strList,imPat,trkPat,True)
+volProp=os.path.join(packDir,"FARenderVolumeProperty.vp")
 if volumeNodes is not None:
-  SetUpFiberBundle([1,2],None,True)
+  SetUpFiberBundle([1,2],None,volProp)
 else:
   print("Trouble loading")
 

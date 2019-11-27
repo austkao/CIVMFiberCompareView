@@ -1,4 +1,4 @@
-def runVolumeRender(volumeNode, view3D):
+def runVolumeRender(volumeNode, view3D, volumeRenderPropertyNode):
     # given a mrml volume node and a 3d view number, 
     # checks for volumerenderingnode, and creates if necessary.
     # then displays renderingnode in view
@@ -31,5 +31,8 @@ def runVolumeRender(volumeNode, view3D):
       else:
         volumeRenderingLogic.UpdateDisplayNodeFromVolumeNode(displayNode, volumeNode)
       displayNode.SetVisibility(view3D)
+      if type(volumeRenderPropertyNode) is not bool:
+        print "Using props",volumeRenderPropertyNode.GetName()
+        displayNode.SetAndObserveVolumePropertyNodeID(volumeRenderPropertyNode.GetID())
       viewString = "vtkMRMLViewNode"+str(view3D)
       displayNode.SetDisplayableOnlyInView(viewString)

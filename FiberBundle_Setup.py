@@ -28,6 +28,7 @@ def SetUpFiberBundle(intList,trkFilter=None,show3D=None):
 		tubeString = "vtkMRMLFiberBundleTubeDisplayNode"+str(intList[i])
 		viewString = "vtkMRMLViewNode"+str(viewNum)
 		if(viewNum==1):
+			cam1 = slicer.util.getNode("vtkMRMLCameraNode1")
 			sliceString = "vtkMRMLSliceNodeOne"
 		elif(viewNum==2):
 			sliceString = "vtkMRMLSliceNodeTwo"
@@ -40,15 +41,14 @@ def SetUpFiberBundle(intList,trkFilter=None,show3D=None):
 		elif(viewNum==5):
 			layoutManager.setLayout(FiveStrainView)
 			sliceString = "vtkMRMLSliceNodeFive"
+		if viewNum>1:
+			cam1.SetActiveTag("vtkMRMLViewNode"+str(viewNum))
 		compString = sliceString.replace("Slice","SliceComposite")
 		print(compString)
 		sliceNode = scene.GetNodeByID(sliceString)
 		sliceNode.SetSliceResolutionMode(0)
-	    #compString = sliceString.replace("Slice","SliceComposite")
 		#compNode = scene.GetNthNodeByClass(i, "vtkMRMLSliceCompositeNode")
 		#volume = volumes.GetItemAsObject(intList[i]-1)
-		#compNode.SetBackgroundVolumeID(volume.GetID())
-		#print(compString)
 		line1 = scene.GetNodeByID(lineString)
 		line1.SetDisplayableOnlyInView(viewString)
 		tube1 = scene.GetNodeByID(tubeString)
@@ -59,17 +59,31 @@ def SetUpFiberBundle(intList,trkFilter=None,show3D=None):
 		line1.SetColorModeToPointFiberOrientation()
 		tube1.SetColorModeToPointFiberOrientation()
 		tube1.SetSliceIntersectionVisibility(1)
-		#compNode = scene.GetNodeByID(compString)
-		#compNode.SetBackgroundVolumeID(volume.GetID())
 		compNode = scene.GetNodeByID(compString)
 		volume = volumes.GetItemAsObject(intList[i]-1)
 		compNode.SetBackgroundVolumeID(volume.GetID())
 		viewNum = viewNum+1
-		#>>> manager.resetThreeDViews()
 		manager = slicer.app.layoutManager()
 		manager.resetSliceViews()
 		if show3D is not None:
-			runVolumeRender(volume,i+1)
+			if type(show3D) is str:
+				type(show3D)
+				if os.path.isfile(show3D):
+					# If we're a file, assume we're a volume property.
+					rendPropName=os.path.splitext(os.path.basename(show3D))[0]
+					propNodes=scene.GetNodesByName(rendPropName)
+					if propNodes.GetNumberOfItems() == 0:
+						ioM=slicer.app.ioManager()
+						loadSuccess=ioM.loadFile(show3D)
+						if not loadSuccess: 
+							print("Error on load volume prop"+show3D)
+							return
+						propNodes=scene.GetNodesByName(rendPropName)
+					if propNodes.GetNumberOfItems() != 1:
+						print("Requested volume property but failed to load(or got multiple load results)")
+						return
+					show3D=propNodes.GetItemAsObject(0)
+			runVolumeRender(volume,i+1,show3D)
 			manager.resetThreeDViews()
 			#reset3DView(i+1)
 
