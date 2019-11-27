@@ -48,7 +48,7 @@ def StrainDataLoad(packDir,strList,imPat,trkPat,atlasTransform=None):
     
     # check if we have a transform dir and bail if we asked for one but didnt find
     trLinkD=os.path.join(dataPak,"transforms")
-    if atlasTransform is not None and no os.path.isdir(trLinkD):
+    if atlasTransform is not None and not os.path.isdir(trLinkD):
         print("Missing requested transform dir",trLinkD)
     
     # get any track dirs
@@ -83,7 +83,7 @@ def StrainDataLoad(packDir,strList,imPat,trkPat,atlasTransform=None):
     # Should check if data are loaded here and skip if they are
     #[loadSuccess, volumeNode]=sutil.loadVolume(os.path.join(dataPak,imgs[0]),True)
     
-    #Useful methods: slicer.util.GetNode(), slicer.util.setSliceViewerLayers()
+    #Useful methods: slicer.util.getNode(), slicer.util.setSliceViewerLayers()
     
     [s,volumeNodes[im]]=sutil.loadVolume(os.path.join(dataPak,imgs[0]),{"Show":False},True)
     im+=1

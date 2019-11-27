@@ -42,5 +42,7 @@ customLayout = ("<layout type=\"horizontal\">"
 customLayoutId=586
 TwoStrainView=customLayoutId;
 layoutManager = slicer.app.layoutManager()
-layoutManager.layoutLogic().GetLayoutNode().AddLayoutDescription(customLayoutId, customLayout)                                         
+layoutManager.layoutLogic().GetLayoutNode().AddLayoutDescription(customLayoutId, customLayout)
+cam1 = slicer.util.getNode("vtkMRMLCameraNode1")
+cam1.SetActiveTag("vtkMRMLViewNode2")                                         
 #layoutManager.setLayout(customLayoutId)

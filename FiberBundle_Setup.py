@@ -39,11 +39,16 @@ def SetUpFiberBundle(intList,trkFilter=None,show3D=None):
 			sliceString = "vtkMRMLSliceNodeFour"
 		elif(viewNum==5):
 			layoutManager.setLayout(FiveStrainView)
-			sliceString = "vtkMRMLSliceNodeFive" 
+			sliceString = "vtkMRMLSliceNodeFive"
 		compString = sliceString.replace("Slice","SliceComposite")
 		print(compString)
 		sliceNode = scene.GetNodeByID(sliceString)
 		sliceNode.SetSliceResolutionMode(0)
+	    #compString = sliceString.replace("Slice","SliceComposite")
+		#compNode = scene.GetNthNodeByClass(i, "vtkMRMLSliceCompositeNode")
+		#volume = volumes.GetItemAsObject(intList[i]-1)
+		#compNode.SetBackgroundVolumeID(volume.GetID())
+		#print(compString)
 		line1 = scene.GetNodeByID(lineString)
 		line1.SetDisplayableOnlyInView(viewString)
 		tube1 = scene.GetNodeByID(tubeString)
@@ -53,6 +58,9 @@ def SetUpFiberBundle(intList,trkFilter=None,show3D=None):
 		tube1.VisibilityOn() #Note that the tube slice will not show up
 		line1.SetColorModeToPointFiberOrientation()
 		tube1.SetColorModeToPointFiberOrientation()
+		tube1.SetSliceIntersectionVisibility(1)
+		#compNode = scene.GetNodeByID(compString)
+		#compNode.SetBackgroundVolumeID(volume.GetID())
 		compNode = scene.GetNodeByID(compString)
 		volume = volumes.GetItemAsObject(intList[i]-1)
 		compNode.SetBackgroundVolumeID(volume.GetID())
@@ -64,3 +72,4 @@ def SetUpFiberBundle(intList,trkFilter=None,show3D=None):
 			runVolumeRender(volume,i+1)
 			manager.resetThreeDViews()
 			#reset3DView(i+1)
+
