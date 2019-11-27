@@ -6,7 +6,7 @@ if os.name=='nt':
   strList=["DB2\\N54781","BTBR\\N54817"]
 else:
   packDir='/Users/ak457/DiffusionDisplayTestData/'
-  strList=["N54781","N54817"]
+  strList=["DB2/N54781","BRBR/N54817"]
 imPat=".*_fa.*[.]nii([.]gz)?$"
 # set up is one roi at a time
 #N=76
