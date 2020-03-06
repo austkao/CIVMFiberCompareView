@@ -3,6 +3,8 @@
 # adapted to be marginally cross platform
 
 import os
+import re
+from sets import Set
 
 # haphazardly force win paths vs dev user
 if os.name=='nt':

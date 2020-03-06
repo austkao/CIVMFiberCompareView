@@ -1,7 +1,6 @@
 #Code for setting up the Fiber Bundles in Fiber Compare Views
 #Input intList is a list of the fiber bundle numbers to display from left to right
 #e.g. list [1,2] displays FiberBundle1 in View 1 (left side) and FiberBundle2 in View 2 (right side)
-#
 #Note that it is necessary to exec a FiberCompareView first before executing code
 #e.g. exec FiveStrainView.py first before giving input list of length five
 #Note that the code assumes that MRML IDs for the FA and Fiber Bundle Nodes share the same number

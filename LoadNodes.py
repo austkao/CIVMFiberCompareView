@@ -1,18 +1,15 @@
-# Script to load data in orderded fashino for SetUpFiberBundle
-# Not the best name when I think about it,
-# Maybe it should be LoadCIVMPackedTrackData ? 
-# ... or maybe not.
-# james cook
-#Created class called DataPackage to encapsulate a specific node for a specimen
-#StrainDataLoad will place pointers to loaded data in DataPackage class
+# Script to load in all tracks at the start of the program
+# Austin Kao
+# Created class called DataPackage to encapsulate a specific node for a specimen
+
+import os
+import re
+from sets import Set
+
 class DataPackage:
-    #Contains String IDs of an FA volume node, FiberBundle node, and the 3D FA volume node
+    #Contains an FA volume node and a FiberBundle node
     #FiberBundle node is vtkMRMLFiberBundleNode; use GetLineDisplayNode and GetTubeDisplayNode
-    #
     def __init__(self, volNode, fibNode):
-        if(type(volNode) is not str or type(fibNode) is not str):
-            print("Error creating data package")
-            return
         self.volNode = volNode
         self.fibNode = fibNode
     
@@ -21,11 +18,16 @@ class DataPackage:
     def getFibNode(self):
         return self.fibNode
 
-def StrainDataLoad(packDir,strList,imPat,trkPat,atlasTransform=None):
+#Returns a dictionary of ROI:DataPackage pairs
+def LoadNodes(atlasTransform=None):
   transformExts='[.](h5|mat|txt)'
+  packDir='/Users/ak457/DiffusionDisplayTestData/'
+  #packDir='/Volumes/ak457/DiffusionDisplayTestData/'
+  strList=["DB2/N54781","BTBR/N54817"]
+  #strList = ["C57/N54790","BTBR/N54811"]
+  imPat=".*_fa.*[.]nii([.]gz)?$"
   # packDir should be full of independent collections of data (RUNNO's at civm)
   # strList is a listing of things in packDir
-  #
   # if your structure is more complicated slip additional path levels into strList	
   # eg, N1235, N2345 becomes StrainA/N1235, StrainB/N2345
   # imPat is a regular expression to match the images
@@ -52,11 +54,10 @@ def StrainDataLoad(packDir,strList,imPat,trkPat,atlasTransform=None):
     return
   
   sutil = slicer.util
-  import re
   # Should return ... things? maybe list of volumeNodes?
-  volumeNodes=[0 for packName in strList]
-  dataPacks=[0 for packName in strList]
-  im=0;
+  fiberNodes=Set([])
+  dataPacks=Set([])
+  dataDict=dict()
   for packName in strList:
     # if we've got dir info coded into strList we gotta clean that out.
     dataPak=os.path.join(packDir, packName)
@@ -69,11 +70,12 @@ def StrainDataLoad(packDir,strList,imPat,trkPat,atlasTransform=None):
     # check if we have a transform dir and bail if we asked for one but didnt find
     trLinkD=os.path.join(dataPak,"transforms")
     if atlasTransform is not None and not os.path.isdir(trLinkD):
-        print("Missing requested transform dir",trLinkD)
+      print("Missing requested transform dir",trLinkD)
     
     # get any track dirs
     trkD=os.path.join(dataPak,"trk")
     packTrks= os.listdir(trkD)
+    #print(packTrks)
     if len(packTrks)==0:
       print("No trk files in "+trkD+" cannot continue!")
       return
@@ -85,16 +87,16 @@ def StrainDataLoad(packDir,strList,imPat,trkPat,atlasTransform=None):
     
     # set img regex and look for img, we should be constrained enough to only find 1.
     if(imPat is not None):
-        imgs = [f for f in os.listdir(dataPak) if re.match(r''+packName+imPat+'', f)]
+      imgs = [f for f in os.listdir(dataPak) if re.match(r''+packName+imPat+'', f)]
     
     # set trk regex and look for trk, again we should be constrained enough to only find 1.
-    trks = [f for f in os.listdir(packTrk) if re.match(r''+packName+trkPat+'', f)]
+    
 
     # find transform file in trk folder to put the trks in alignment with the images
     trk_t = [f for f in os.listdir(packTrk) if re.match(r''+packName+'.*([aA]ffine|[rR]igid.*)?'+transformExts, f)]
 
-    if not (len(imgs) == 1) or not (len(trks) == 1):
-      print("Bad data for ",packName," imgs:",len(imgs)," trks:",len(trks))
+    if not (len(imgs) == 1):
+      print("Bad data for ",packName," imgs:",len(imgs))
       return
 
     if len(trk_t)>1:
@@ -104,18 +106,35 @@ def StrainDataLoad(packDir,strList,imPat,trkPat,atlasTransform=None):
     # Should check if data are loaded here and skip if they are
     #[loadSuccess, volumeNode]=sutil.loadVolume(os.path.join(dataPak,imgs[0]),True)
     
-    #Useful methods: slicer.util.getNode(), slicer.util.setSliceViewerLayers()
+    #Useful methods: slicer.util.GetNode(), slicer.util.setSliceViewerLayers()
     print "LoadVol",os.path.join(dataPak,imgs[0])
-    [volLoadSuccess,volumeNodes[im]]=sutil.loadVolume(os.path.join(dataPak,imgs[0]),{"Show":False},True)
-    [fibLoadSuccess, fiberNode]=sutil.loadFiberBundle(os.path.join(packTrk,trks[0]),True)
-    if(volLoadSuccess==1 and fibLoadSuccess==1):
-        print(volumeNodes[im].GetID())
-        print
-        dataPacks[im] = DataPackage(volumeNodes[im].GetID(),fiberNode.GetID())
+    [volLoadSuccess,volNode]=sutil.loadVolume(os.path.join(dataPak,imgs[0]),{"Show":False},True)
     if len(trk_t)==1:
       [loadSuccess, trkToVolTransform]=sutil.loadTransform(os.path.join(packTrk,trk_t[0]), True)
-      # fiberNode.ApplyTransformMatrix(trkToVolTransform.GetMatrixTransformToParent())
-      fiberNode.SetAndObserveTransformNodeID(trkToVolTransform.GetID())
+    sides=[0,1000]
+    for N in range(1,167):
+      for side in sides:
+        trkPat=".*ROI_"+str(N+side)+"_.*[.]vtk([.]gz)?$"
+        #print(packTrk)
+        trk = [f for f in os.listdir(packTrk) if re.match(r''+packName+trkPat+'', f)]
+        if(len(trk)>1):
+          print("More than one track: Size "+str(len(trk)))
+        elif(len(trk)==0):
+            #print("Did not find track")
+          continue
+        [fibLoadSuccess, fiberNode]=sutil.loadFiberBundle(os.path.join(packTrk,trk[0]),True)
+        if(volLoadSuccess==1 and fibLoadSuccess==1):
+          #print(volNode.GetID())
+          # fiberNode.ApplyTransformMatrix(trkToVolTransform.GetMatrixTransformToParent())
+          fiberNode.SetAndObserveTransformNodeID(trkToVolTransform.GetID())
+          lineNode = fiberNode.GetLineDisplayNode()
+          lineNode.VisibilityOff()
+          dataPackage = DataPackage(volNode,fiberNode)
+          dataPacks.add(dataPackage)
+          fiberNodes.add(fiberNode)
+          if not dataDict.has_key(side+N):
+            dataDict[side+N]=Set([])
+          dataDict[side+N].add(dataPackage)
     if atlasTransform is not None:
       # Simplisitic first version assuming that there is only one transform set FROM our data to someplace else.
       # In the future we can check if atlasTransform is a string, and if it's specifiying our target.
@@ -142,19 +161,19 @@ def StrainDataLoad(packDir,strList,imPat,trkPat,atlasTransform=None):
             transformNodes[tn-1].SetAndObserveTransformNodeID(transformNodes[tn].GetID())
           else:
             # volumeNodes[im].ApplyTransformMatrix(transformNodes[tn].GetMatrixTransformToParent())
-            volumeNodes[im].SetAndObserveTransformNodeID(transformNodes[tn].GetID())
+            volNode.SetAndObserveTransformNodeID(transformNodes[tn].GetID())
             if len(trk_t)==1:
               # trkToVolTransform.ApplyTransformMatrix(transformNodes[tn].GetMatrixTransformToParent())
               trkToVolTransform.SetAndObserveTransformNodeID(transformNodes[tn].GetID())
             else:
               # fiberNode.ApplyTransformMatrix(transformNodes[tn].GetMatrixTransformToParent())
-              fiberNode.SetAndObserveTransformNodeID(transformNodes[tn].GetID())
+              for fib in fiberNodes:
+                fiberNode.SetAndObserveTransformNodeID(transformNodes[tn].GetID())
         else:
           print("error loading ",tformName)
           return
-    im+=1
   #return volumeNodes
-  return dataPacks
+  return dataDict
   #sutil.loadVolume("/Users/ak457/DiffusionDisplayTestData/BTBR_N54811/N54811_fa_RAS.nii.gz")
   #sutil.loadVolume("/Users/ak457/DiffusionDisplayTestData/C57_N54790/N54790_fa_RAS.nii.gz")
   #sutil.loadFiberBundle("/Users/ak457/DSI studio testing/DSI studio BAD/N54790_C57/N54790_C57_symmetric_R_labels_RAS_121.vtk")
